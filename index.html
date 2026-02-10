@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบคำนวณสัญญาผ่อน</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ffd700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+
+        /* Tab styles */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 140px;
+            padding: 14px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f5f5f5;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .tab:hover {
+            border-color: #ffd700;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+            border-color: #ffd700;
+            font-weight: bold;
+        }
+
+        .tab-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .tab-desc {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .tab.active .tab-desc {
+            color: #333;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #1a1a2e;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .result {
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #666;
+        }
+
+        .result-value {
+            font-weight: bold;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            margin: 0 -24px;
+            padding: 14px 24px;
+        }
+
+        .highlight .result-value {
+            color: #2e7d32;
+            font-size: 24px;
+        }
+
+        .discount-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            margin: 0 -24px;
+            padding: 14px 24px;
+        }
+
+        .discount-box .result-value {
+            color: #e65100;
+        }
+
+        .profit-box {
+            background: linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%);
+            margin: 0 -24px;
+            padding: 14px 24px;
+        }
+
+        .profit-box .result-value {
+            color: #2e7d32;
+        }
+
+        .summary-box {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .summary-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .summary-text {
+            color: #666;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        .compare-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .compare-title {
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        .compare-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #90caf9;
+        }
+
+        .compare-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .rate-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .rate-table th, .rate-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .rate-table th {
+            background: #ffd700;
+            color: #1a1a2e;
+        }
+
+        .rate-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .badge-green {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge-orange {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge-blue {
+            background: #2196f3;
+            color: white;
+        }
+
+        .note-box {
+            background: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            margin-top: 16px;
+            border-radius: 0 10px 10px 0;
+            font-size: 14px;
+            color: #5d4037;
+        }
+
+        .strike {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+
+        /* ==================== Mobile Responsive ==================== */
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+
+            .card {
+                padding: 16px;
+                border-radius: 12px;
+            }
+
+            .card-title {
+                font-size: 16px;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .badge {
+                margin-left: 0;
+            }
+
+            /* Tabs - Stack vertically on mobile */
+            .tabs {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .tab {
+                min-width: 100%;
+                padding: 12px 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .tab-title {
+                font-size: 15px;
+                margin-bottom: 0;
+            }
+
+            .tab-desc {
+                font-size: 12px;
+                background: rgba(0,0,0,0.1);
+                padding: 4px 10px;
+                border-radius: 20px;
+            }
+
+            .tab.active .tab-desc {
+                background: rgba(0,0,0,0.15);
+            }
+
+            /* Form elements */
+            input, select {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .btn {
+                padding: 14px;
+                font-size: 16px;
+            }
+
+            /* Result items - Stack on mobile */
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+                padding: 12px 0;
+            }
+
+            .result-label {
+                font-size: 13px;
+            }
+
+            .result-value {
+                font-size: 16px;
+                word-break: break-word;
+            }
+
+            .highlight, .discount-box, .profit-box {
+                margin: 0 -16px;
+                padding: 12px 16px;
+                border-radius: 0;
+            }
+
+            .highlight .result-value {
+                font-size: 20px;
+            }
+
+            /* Summary box */
+            .summary-box {
+                padding: 14px;
+            }
+
+            .summary-text {
+                font-size: 13px;
+                line-height: 1.7;
+            }
+
+            /* Compare box */
+            .compare-box {
+                padding: 14px;
+            }
+
+            .compare-row {
+                flex-direction: column;
+                gap: 4px;
+                padding: 10px 0;
+            }
+
+            .compare-row span:last-child {
+                font-weight: bold;
+                font-size: 15px;
+            }
+
+            /* Rate table */
+            .rate-table {
+                font-size: 12px;
+            }
+
+            .rate-table th, .rate-table td {
+                padding: 8px 4px;
+            }
+
+            .info-text {
+                font-size: 11px;
+            }
+
+            /* Note box */
+            .note-box {
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+
+            /* Fix result items with colored backgrounds */
+            .result-item[style*="background"] {
+                margin-left: -16px !important;
+                margin-right: -16px !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+        }
+
+        /* Small phone adjustments */
+        @media (max-width: 380px) {
+            h1 {
+                font-size: 18px;
+            }
+
+            .card {
+                padding: 14px;
+            }
+
+            .tab-title {
+                font-size: 14px;
+            }
+
+            .result-value {
+                font-size: 15px;
+            }
+
+            .highlight .result-value {
+                font-size: 18px;
+            }
+        }
+        /* Fireworks canvas */
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fireworksCanvas"></canvas>
+    <div class="container">
+        <h1>ระบบคำนวณสัญญาผ่อน</h1>
+        <p class="subtitle">เลือกรูปแบบการคำนวณด้านล่าง</p>
+
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab(1)">
+                    <div class="tab-title">1. ปิดก่อนงวดแรก</div>
+                    <div class="tab-desc">ลด 20%</div>
+                </div>
+                <div class="tab" onclick="switchTab(2)">
+                    <div class="tab-title">2. ปิดระหว่างผ่อน</div>
+                    <div class="tab-desc">ลด 10%</div>
+                </div>
+                <div class="tab" onclick="switchTab(3)">
+                    <div class="tab-title">3. เปลี่ยนสัญญา</div>
+                    <div class="tab-desc">ยืดเวลาผ่อน</div>
+                </div>
+            </div>
+
+            <!-- Tab 1: ปิดก่อนจ่ายงวดแรก -->
+            <div class="tab-content active" id="tab1">
+                <div class="card-title">ปิดก่อนจ่ายงวดแรก <span class="badge badge-orange">ลด 20%</span></div>
+
+                <div class="form-group">
+                    <label>เงินที่ลูกค้ารับไป (บาท)</label>
+                    <input type="number" id="amount1" placeholder="เช่น 18000" value="18000">
+                </div>
+
+                <div class="form-group">
+                    <label>สัญญาเดิมที่เลือก (งวด)</label>
+                    <select id="originalPlan1">
+                        <option value="3">3 งวด</option>
+                        <option value="6">6 งวด</option>
+                        <option value="9" selected>9 งวด</option>
+                    </select>
+                </div>
+
+                <div class="note-box">
+                    <strong>วิธีคิด:</strong> ลูกค้ายังไม่จ่ายงวดแรก ให้คิดเป็นสัญญา 3 เดือน แล้วลดให้ 20%
+                </div>
+
+                <button class="btn" onclick="calculate1()" style="margin-top: 20px;">คำนวณ</button>
+            </div>
+
+            <!-- Tab 2: ปิดระหว่างผ่อน -->
+            <div class="tab-content" id="tab2">
+                <div class="card-title">ปิดระหว่างผ่อน <span class="badge badge-orange">ลด 10%</span></div>
+
+                <div class="form-group">
+                    <label>เงินที่ลูกค้ารับไป (บาท)</label>
+                    <input type="number" id="amount2" placeholder="เช่น 18000" value="18000">
+                </div>
+
+                <div class="form-group">
+                    <label>สัญญาเดิม (งวด)</label>
+                    <select id="originalPlan2" onchange="updatePaidOptions2()">
+                        <option value="3">3 งวด</option>
+                        <option value="6">6 งวด</option>
+                        <option value="9" selected>9 งวด</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>จ่ายไปแล้วกี่งวด</label>
+                    <select id="paidInstallments2">
+                        <option value="1">1 งวด</option>
+                        <option value="2">2 งวด</option>
+                        <option value="3">3 งวด</option>
+                        <option value="4">4 งวด</option>
+                        <option value="5">5 งวด</option>
+                        <option value="6">6 งวด</option>
+                        <option value="7">7 งวด</option>
+                        <option value="8">8 งวด</option>
+                    </select>
+                </div>
+
+                <div class="note-box">
+                    <strong>วิธีคิด:</strong> เอางวดที่เหลือรวมกัน แล้วลด 10%<br>
+                    <span style="color:#e65100;">* ผ่อนไม่เกิน 3 งวด → คิดเป็นสัญญา 3 เดือน</span><br>
+                    <span style="color:#e65100;">* ผ่อนเกินหรือเท่ากับ 3 งวด → คิดเป็นสัญญา 6 เดือน</span><br>
+                    <span style="color:#e65100;">* ผ่อนเกินหรือเท่ากับ 6 งวด → คิดเป็นสัญญา 9 เดือน</span>
+                </div>
+
+                <button class="btn" onclick="calculate2()" style="margin-top: 20px;">คำนวณ</button>
+            </div>
+
+            <!-- Tab 3: เปลี่ยนสัญญา -->
+            <div class="tab-content" id="tab3">
+                <div class="card-title">เปลี่ยนสัญญายืดเวลา <span class="badge badge-green">กำไรเพิ่ม</span></div>
+
+                <div class="form-group">
+                    <label>เงินที่ลูกค้ารับไป (บาท)</label>
+                    <input type="number" id="amount3" placeholder="เช่น 18000" value="18000">
+                </div>
+
+                <div class="form-group">
+                    <label>สัญญาเดิม (งวด)</label>
+                    <select id="originalPlan3" onchange="updatePaidOptions3()">
+                        <option value="3" selected>3 งวด</option>
+                        <option value="6">6 งวด</option>
+                        <option value="9">9 งวด</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>จ่ายไปแล้วกี่งวด</label>
+                    <select id="paidInstallments3">
+                        <option value="0">ยังไม่ได้จ่าย</option>
+                        <option value="1" selected>1 งวด</option>
+                        <option value="2">2 งวด</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>เปลี่ยนเป็นสัญญาใหม่ (งวด)</label>
+                    <select id="newPlan3">
+                        <option value="6">6 งวด</option>
+                        <option value="9" selected>9 งวด</option>
+                        <option value="12">12 งวด</option>
+                    </select>
+                </div>
+
+                <div class="note-box">
+                    <strong>วิธีคิด:</strong> ใช้เรทสัญญาใหม่ ร้านได้กำไรตามสัญญาที่ยาวขึ้น
+                </div>
+
+                <button class="btn" onclick="calculate3()" style="margin-top: 20px;">คำนวณ</button>
+            </div>
+        </div>
+
+        <!-- Result Card -->
+        <div class="card result" id="resultCard">
+            <div class="card-title" id="resultTitle">ผลการคำนวณ</div>
+            <div id="resultContent"></div>
+        </div>
+
+        <!-- Rate Table -->
+        <div class="card">
+            <div class="card-title">อัตราผ่อนมาตรฐาน (18,000 บาท)</div>
+            <table class="rate-table">
+                <tr>
+                    <th>งวด</th>
+                    <th>ต่อเดือน</th>
+                    <th>รวม</th>
+                    <th>กำไร</th>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>9,600</td>
+                    <td>28,800</td>
+                    <td>10,800</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>6,600</td>
+                    <td>39,600</td>
+                    <td>21,600</td>
+                </tr>
+                <tr>
+                    <td>9</td>
+                    <td>5,600</td>
+                    <td>50,400</td>
+                    <td>32,400</td>
+                </tr>
+            </table>
+            <p class="info-text">* ตารางนี้ใช้อ้างอิงอัตรามาตรฐานสำหรับเงิน 18,000 บาท</p>
+        </div>
+    </div>
+
+    <script>
+        // อัตราผ่อนต่อ 1,000 บาท
+        const ratesPer1000 = {
+            3: 533.33,
+            6: 366.67,
+            9: 311.11,
+            12: 277.78
+        };
+
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString('th-TH');
+        }
+
+        function switchTab(tabNum) {
+            // Remove active from all tabs
+            document.querySelectorAll('.tab').forEach((t, i) => {
+                t.classList.toggle('active', i === tabNum - 1);
+            });
+
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach((c, i) => {
+                c.classList.toggle('active', i === tabNum - 1);
+            });
+
+            // Hide result
+            document.getElementById('resultCard').classList.remove('show');
+        }
+
+        function updatePaidOptions2() {
+            const plan = parseInt(document.getElementById('originalPlan2').value);
+            const select = document.getElementById('paidInstallments2');
+            select.innerHTML = '';
+            for (let i = 1; i < plan; i++) {
+                select.innerHTML += `<option value="${i}">${i} งวด</option>`;
+            }
+        }
+
+        function updatePaidOptions3() {
+            const plan = parseInt(document.getElementById('originalPlan3').value);
+            const select = document.getElementById('paidInstallments3');
+            select.innerHTML = '<option value="0">ยังไม่ได้จ่าย</option>';
+            for (let i = 1; i < plan; i++) {
+                select.innerHTML += `<option value="${i}">${i} งวด</option>`;
+            }
+        }
+
+        // ==================== Tab 1: ปิดก่อนงวดแรก ====================
+        function calculate1() {
+            const amount = parseFloat(document.getElementById('amount1').value) || 0;
+            const originalPlan = parseInt(document.getElementById('originalPlan1').value);
+
+            // คิดเป็นสัญญา 3 เดือนเสมอ
+            const monthly3 = (amount / 1000) * ratesPer1000[3];
+            const total3 = monthly3 * 3;
+            const discount = total3 * 0.20;
+            const finalAmount = total3 - discount;
+            const profit = finalAmount - amount;
+
+            // Original plan info
+            const monthlyOrig = (amount / 1000) * ratesPer1000[originalPlan];
+            const totalOrig = monthlyOrig * originalPlan;
+
+            let html = `
+                <div class="result-item">
+                    <span class="result-label">สัญญาเดิมที่ลูกค้าเลือก</span>
+                    <span class="result-value">${originalPlan} งวด (${formatNumber(monthlyOrig)}/เดือน)</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">คิดเป็นสัญญา 3 เดือนแทน</span>
+                    <span class="result-value">${formatNumber(monthly3)} × 3 = ${formatNumber(total3)} บาท</span>
+                </div>
+                <div class="result-item discount-box">
+                    <span class="result-label">ส่วนลด 20%</span>
+                    <span class="result-value">-${formatNumber(discount)} บาท</span>
+                </div>
+                <div class="result-item highlight">
+                    <span class="result-label">ลูกค้าจ่ายปิดสัญญา</span>
+                    <span class="result-value">${formatNumber(finalAmount)} บาท</span>
+                </div>
+                <div class="result-item profit-box">
+                    <span class="result-label">กำไรร้าน</span>
+                    <span class="result-value">${formatNumber(profit)} บาท</span>
+                </div>
+                <div class="summary-box">
+                    <div class="summary-title">สรุป</div>
+                    <div class="summary-text">ลูกค้ารับเงินไป ${formatNumber(amount)} บาท
+เลือกสัญญา ${originalPlan} งวด แต่ขอปิดก่อนจ่ายงวดแรก
+คิดเป็นสัญญา 3 เดือน = ${formatNumber(total3)} บาท
+ลด 20% = ${formatNumber(finalAmount)} บาท</div>
+                </div>
+            `;
+
+            document.getElementById('resultTitle').innerHTML = 'ผลการคำนวณ <span class="badge badge-orange">ปิดก่อนงวดแรก</span>';
+            document.getElementById('resultContent').innerHTML = html;
+            document.getElementById('resultCard').classList.add('show');
+        }
+
+        // ==================== Tab 2: ปิดระหว่างผ่อน ====================
+        function calculate2() {
+            const amount = parseFloat(document.getElementById('amount2').value) || 0;
+            const originalPlan = parseInt(document.getElementById('originalPlan2').value);
+            const paidInstallments = parseInt(document.getElementById('paidInstallments2').value);
+
+            // คำนวณงวดเดิม
+            const monthlyOrig = (amount / 1000) * ratesPer1000[originalPlan];
+            // ยอดที่ลูกค้าจ่ายไปแล้วจริง (ตามสัญญาเดิม)
+            const alreadyPaidOrig = monthlyOrig * paidInstallments;
+
+            let usedPlan, monthsRemaining, monthlyUsed, note;
+
+            // ผ่อนเกินหรือเท่ากับ 6 งวด → สัญญา 9 เดือน
+            // ผ่อนเกินหรือเท่ากับ 3 งวด → สัญญา 6 เดือน
+            // ผ่อนไม่เกิน 3 งวด → สัญญา 3 เดือน
+            if (paidInstallments >= 6) {
+                usedPlan = 9;
+                monthsRemaining = 9 - paidInstallments;
+                monthlyUsed = (amount / 1000) * ratesPer1000[9];
+                note = `ผ่อนเกินหรือเท่ากับ 6 งวด → คิดเป็นสัญญา 9 เดือน`;
+            } else if (paidInstallments >= 3) {
+                usedPlan = 6;
+                monthsRemaining = 6 - paidInstallments;
+                monthlyUsed = (amount / 1000) * ratesPer1000[6];
+                note = `ผ่อนเกินหรือเท่ากับ 3 งวด → คิดเป็นสัญญา 6 เดือน`;
+            } else {
+                usedPlan = 3;
+                monthsRemaining = 3 - paidInstallments;
+                monthlyUsed = (amount / 1000) * ratesPer1000[3];
+                note = `ผ่อนไม่เกิน 3 งวด → คิดเป็นสัญญา 3 เดือน`;
+            }
+
+            // ถ้าคำนวณไม่ได้ (งวดที่เหลือ <= 0) ให้ใช้สัญญาเดิมแทน
+            if (monthsRemaining <= 0) {
+                usedPlan = originalPlan;
+                monthsRemaining = originalPlan - paidInstallments;
+                monthlyUsed = monthlyOrig;
+                note = `ใช้สัญญาเดิม ${originalPlan} เดือน`;
+            }
+
+            // ถ้ายังคำนวณไม่ได้อีก (จ่ายครบแล้ว)
+            if (monthsRemaining <= 0) {
+                let html = `
+                    <div class="note-box" style="background: #ffebee; border-color: #f44336;">
+                        <strong>ไม่สามารถคำนวณได้</strong><br>
+                        ลูกค้าจ่ายครบหรือเกินจำนวนงวดแล้ว
+                    </div>
+                `;
+                document.getElementById('resultTitle').innerHTML = 'ผลการคำนวณ';
+                document.getElementById('resultContent').innerHTML = html;
+                document.getElementById('resultCard').classList.add('show');
+                return;
+            }
+
+            // คำนวณส่วนต่างที่ต้องเติม (งวดที่จ่ายไปแล้ว)
+            const shouldHavePaid = monthlyUsed * paidInstallments; // ยอดที่ควรจ่ายตามสัญญาใหม่
+            const difference = shouldHavePaid - alreadyPaidOrig; // ส่วนต่างที่ต้องเติม
+
+            // คำนวณงวดที่เหลือ
+            const remainingTotal = monthlyUsed * monthsRemaining;
+            // รวมส่วนต่าง + งวดที่เหลือ ก่อนลด
+            const beforeDiscount = difference + remainingTotal;
+            // ไม่ลด เฉพาะกรณี: เหลือ 1 งวด และ สัญญาเดิม = สัญญาใหม่
+            const noDiscount = monthsRemaining === 1 && originalPlan === usedPlan;
+            const discount = noDiscount ? 0 : beforeDiscount * 0.10;
+            const totalToClose = beforeDiscount - discount;
+
+            // รวมทั้งหมดที่ลูกค้าจ่าย
+            const totalPaid = alreadyPaidOrig + totalToClose;
+            const profit = totalPaid - amount;
+
+            let html = `
+                <div class="result-item">
+                    <span class="result-label">สัญญาเดิม</span>
+                    <span class="result-value">${originalPlan} งวด (${formatNumber(monthlyOrig)}/เดือน)</span>
+                </div>
+                <div class="result-item" style="background: #e3f2fd; margin: 0 -24px; padding: 14px 24px;">
+                    <span class="result-label">${note}</span>
+                    <span class="result-value">${formatNumber(monthlyUsed)}/เดือน</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">จ่ายไปแล้ว ${paidInstallments} งวด (สัญญาเดิม)</span>
+                    <span class="result-value">${formatNumber(monthlyOrig)} × ${paidInstallments} = ${formatNumber(alreadyPaidOrig)} บาท</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">ควรจ่าย ${paidInstallments} งวด (สัญญาใหม่)</span>
+                    <span class="result-value">${formatNumber(monthlyUsed)} × ${paidInstallments} = ${formatNumber(shouldHavePaid)} บาท</span>
+                </div>
+                <div class="result-item" style="background: #fff3e0; margin: 0 -24px; padding: 14px 24px;">
+                    <span class="result-label">ส่วนต่างที่ต้องเติม</span>
+                    <span class="result-value" style="color: #e65100;">${formatNumber(difference)} บาท</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">งวดที่เหลือ ${monthsRemaining} งวด</span>
+                    <span class="result-value">${formatNumber(monthlyUsed)} × ${monthsRemaining} = ${formatNumber(remainingTotal)} บาท</span>
+                </div>
+                <div class="result-item" style="background: #e3f2fd; margin: 0 -24px; padding: 14px 24px;">
+                    <span class="result-label">รวมก่อนลด (ส่วนต่าง + งวดที่เหลือ)</span>
+                    <span class="result-value">${formatNumber(difference)} + ${formatNumber(remainingTotal)} = ${formatNumber(beforeDiscount)} บาท</span>
+                </div>
+                ${noDiscount ? `
+                <div class="result-item" style="background: #f5f5f5; margin: 0 -24px; padding: 14px 24px;">
+                    <span class="result-label">งวดสุดท้าย (สัญญาเดิม = สัญญาใหม่)</span>
+                    <span class="result-value">ไม่มีส่วนลด</span>
+                </div>
+                ` : `
+                <div class="result-item discount-box">
+                    <span class="result-label">ลด 10%</span>
+                    <span class="result-value">-${formatNumber(discount)} บาท</span>
+                </div>
+                `}
+                <div class="result-item highlight">
+                    <span class="result-label">ลูกค้าจ่ายปิดสัญญา</span>
+                    <span class="result-value">${formatNumber(totalToClose)} บาท</span>
+                </div>
+                <div class="result-item profit-box">
+                    <span class="result-label">กำไรร้าน</span>
+                    <span class="result-value">${formatNumber(profit)} บาท</span>
+                </div>
+                <div class="summary-box">
+                    <div class="summary-title">สรุปยอดรวมที่ลูกค้าจ่าย</div>
+                    <div class="summary-text">จ่ายไปแล้ว: ${formatNumber(alreadyPaidOrig)} บาท
+จ่ายปิด: ${formatNumber(totalToClose)} บาท
+รวมทั้งหมด: ${formatNumber(totalPaid)} บาท</div>
+                </div>
+            `;
+
+            document.getElementById('resultTitle').innerHTML = 'ผลการคำนวณ <span class="badge badge-orange">ปิดระหว่างผ่อน</span>';
+            document.getElementById('resultContent').innerHTML = html;
+            document.getElementById('resultCard').classList.add('show');
+        }
+
+        // ==================== Tab 3: เปลี่ยนสัญญา ====================
+        function calculate3() {
+            const amount = parseFloat(document.getElementById('amount3').value) || 0;
+            const originalPlan = parseInt(document.getElementById('originalPlan3').value);
+            const paidInstallments = parseInt(document.getElementById('paidInstallments3').value);
+            const newPlan = parseInt(document.getElementById('newPlan3').value);
+
+            // คำนวณยอดรวมสัญญาเดิม
+            const monthlyOriginal = (amount / 1000) * ratesPer1000[originalPlan];
+            const totalOriginal = monthlyOriginal * originalPlan;
+            const profitOriginal = totalOriginal - amount;
+
+            // คำนวณยอดรวมสัญญาใหม่
+            const monthlyNewRate = (amount / 1000) * ratesPer1000[newPlan];
+            const totalNew = monthlyNewRate * newPlan;
+            const profitNew = totalNew - amount;
+
+            // ยอดที่จ่ายไปแล้ว
+            const alreadyPaid = monthlyOriginal * paidInstallments;
+
+            // ยอดคงเหลือ
+            const remaining = totalNew - alreadyPaid;
+            const monthsLeft = newPlan - paidInstallments;
+            const newMonthly = remaining / monthsLeft;
+
+            // กำไรเพิ่ม
+            const extraProfit = profitNew - profitOriginal;
+
+            let html = `
+                <div class="result-item">
+                    <span class="result-label">ยอดรวมสัญญาใหม่ (${newPlan} งวด)</span>
+                    <span class="result-value">${formatNumber(totalNew)} บาท</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">หัก จ่ายไปแล้ว</span>
+                    <span class="result-value">${formatNumber(alreadyPaid)} บาท (${paidInstallments} งวด)</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">ยอดคงเหลือ</span>
+                    <span class="result-value">${formatNumber(remaining)} บาท</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">จำนวนเดือนที่เหลือ</span>
+                    <span class="result-value">${monthsLeft} เดือน</span>
+                </div>
+                <div class="result-item highlight">
+                    <span class="result-label">งวดใหม่ (ต่อเดือน)</span>
+                    <span class="result-value">${formatNumber(newMonthly)} บาท</span>
+                </div>
+                <div class="result-item profit-box">
+                    <span class="result-label">กำไรร้าน</span>
+                    <span class="result-value">${formatNumber(profitNew)} บาท</span>
+                </div>
+                <div class="compare-box">
+                    <div class="compare-title">เปรียบเทียบกำไร</div>
+                    <div class="compare-row">
+                        <span>กำไรสัญญาเดิม (${originalPlan} งวด)</span>
+                        <span>${formatNumber(profitOriginal)} บาท</span>
+                    </div>
+                    <div class="compare-row">
+                        <span>กำไรสัญญาใหม่ (${newPlan} งวด)</span>
+                        <span>${formatNumber(profitNew)} บาท</span>
+                    </div>
+                    <div class="compare-row">
+                        <span>กำไรเพิ่มขึ้น</span>
+                        <span>+${formatNumber(extraProfit)} บาท</span>
+                    </div>
+                </div>
+                <div class="summary-box">
+                    <div class="summary-title">สรุปการเก็บเงิน</div>
+                    <div class="summary-text">ลูกค้ารับเงินไป ${formatNumber(amount)} บาท
+จ่ายไปแล้ว ${paidInstallments} งวด = ${formatNumber(alreadyPaid)} บาท
+เหลือจ่ายอีก ${monthsLeft} เดือน เดือนละ ${formatNumber(newMonthly)} บาท
+รวมลูกค้าจ่ายทั้งหมด ${formatNumber(totalNew)} บาท</div>
+                </div>
+            `;
+
+            document.getElementById('resultTitle').innerHTML = 'ผลการคำนวณ <span class="badge badge-green">เปลี่ยนสัญญา</span>';
+            document.getElementById('resultContent').innerHTML = html;
+            document.getElementById('resultCard').classList.add('show');
+        }
+
+        // ==================== Fireworks Animation ====================
+        const canvas = document.getElementById('fireworksCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let rockets = [];
+        let animating = false;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const fireworkColors = [
+            '#ff4757', '#ffa502', '#ffda79', '#7bed9f', '#70a1ff',
+            '#5352ed', '#ff6b81', '#eccc68', '#2ed573', '#1e90ff',
+            '#ff6348', '#ffd700', '#ff4500', '#00ff88', '#ff69b4',
+            '#00bfff', '#ff1493', '#adff2f'
+        ];
+
+        class Particle {
+            constructor(x, y, color, angle, speed, life) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.angle = angle;
+                this.speed = speed;
+                this.life = life;
+                this.maxLife = life;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.gravity = 0.04;
+                this.friction = 0.98;
+                this.size = Math.random() * 3 + 1.5;
+                this.trail = [];
+            }
+            update() {
+                this.trail.push({ x: this.x, y: this.y, alpha: this.life / this.maxLife });
+                if (this.trail.length > 6) this.trail.shift();
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+                this.vy += this.gravity;
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life--;
+            }
+            draw() {
+                const alpha = this.life / this.maxLife;
+                // Draw trail
+                for (let i = 0; i < this.trail.length; i++) {
+                    const t = this.trail[i];
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, this.size * (i / this.trail.length) * 0.6, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color.replace(')', `, ${t.alpha * 0.3})`).replace('rgb', 'rgba');
+                    ctx.fill();
+                }
+                // Draw particle with glow
+                ctx.save();
+                ctx.globalAlpha = alpha;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class Rocket {
+            constructor(x, targetY) {
+                this.x = x;
+                this.y = canvas.height;
+                this.targetY = targetY;
+                this.speed = 4 + Math.random() * 3;
+                this.trail = [];
+                this.exploded = false;
+            }
+            update() {
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > 12) this.trail.shift();
+                this.y -= this.speed;
+                if (this.y <= this.targetY) {
+                    this.exploded = true;
+                    createExplosion(this.x, this.y);
+                }
+            }
+            draw() {
+                // Draw trail
+                for (let i = 0; i < this.trail.length; i++) {
+                    const t = this.trail[i];
+                    const alpha = i / this.trail.length;
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, 2 * alpha, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.6})`;
+                    ctx.fill();
+                }
+                // Draw rocket head
+                ctx.save();
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = '#ffd700';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffd700';
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function hexToRgb(hex) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function createExplosion(x, y) {
+            const color1 = hexToRgb(fireworkColors[Math.floor(Math.random() * fireworkColors.length)]);
+            const color2 = hexToRgb(fireworkColors[Math.floor(Math.random() * fireworkColors.length)]);
+            const count = 60 + Math.floor(Math.random() * 40);
+
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.5;
+                const speed = 2 + Math.random() * 4;
+                const color = Math.random() > 0.5 ? color1 : color2;
+                const life = 50 + Math.random() * 40;
+                particles.push(new Particle(x, y, color, angle, speed, life));
+            }
+            // Inner ring
+            for (let i = 0; i < 20; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 2;
+                const life = 30 + Math.random() * 20;
+                particles.push(new Particle(x, y, 'rgb(255, 255, 255)', angle, speed, life));
+            }
+        }
+
+        function animateFireworks() {
+            if (!animating && particles.length === 0 && rockets.length === 0) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update & draw rockets
+            for (let i = rockets.length - 1; i >= 0; i--) {
+                rockets[i].update();
+                rockets[i].draw();
+                if (rockets[i].exploded) rockets.splice(i, 1);
+            }
+
+            // Update & draw particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].life <= 0) particles.splice(i, 1);
+            }
+
+            if (particles.length > 0 || rockets.length > 0) {
+                requestAnimationFrame(animateFireworks);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                animating = false;
+            }
+        }
+
+        function launchFireworks() {
+            animating = true;
+            const launchCount = 5;
+            for (let i = 0; i < launchCount; i++) {
+                setTimeout(() => {
+                    const x = canvas.width * 0.15 + Math.random() * canvas.width * 0.7;
+                    const targetY = canvas.height * 0.1 + Math.random() * canvas.height * 0.35;
+                    rockets.push(new Rocket(x, targetY));
+                    if (!animating) {
+                        animating = true;
+                        animateFireworks();
+                    }
+                }, i * 300 + Math.random() * 200);
+            }
+            // Second wave
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const x = canvas.width * 0.2 + Math.random() * canvas.width * 0.6;
+                    const targetY = canvas.height * 0.15 + Math.random() * canvas.height * 0.3;
+                    rockets.push(new Rocket(x, targetY));
+                }, 1500 + i * 400 + Math.random() * 300);
+            }
+            animateFireworks();
+        }
+
+        // Wrap original calculate functions to add fireworks
+        const origCalc1 = calculate1;
+        calculate1 = function() { origCalc1(); launchFireworks(); };
+        const origCalc2 = calculate2;
+        calculate2 = function() { origCalc2(); launchFireworks(); };
+        const origCalc3 = calculate3;
+        calculate3 = function() { origCalc3(); launchFireworks(); };
+
+        // Initialize
+        updatePaidOptions2();
+        updatePaidOptions3();
+    </script>
+</body>
+</html>
