@@ -650,6 +650,12 @@
                 </div>
 
                 <button class="btn" onclick="calculate2()" style="margin-top: 20px;">คำนวณ</button>
+
+                <button class="script-toggle-btn" id="scriptToggleBtn2" onclick="toggleScript2()" style="display:none;">💬 ข้อความอธิบายลูกค้า</button>
+                <div id="customerScript2" style="display:none;">
+                    <div class="customer-script-box" id="customerScriptText2"></div>
+                    <button class="copy-btn" onclick="copyScript2(this)">📋 คัดลอกข้อความ</button>
+                </div>
             </div>
 
             <!-- Tab 3: เปลี่ยนสัญญา -->
@@ -761,6 +767,11 @@
 
             // Hide result
             document.getElementById('resultCard').classList.remove('show');
+            // Hide customer script (Tab 2)
+            const scriptBtn = document.getElementById('scriptToggleBtn2');
+            const scriptBox = document.getElementById('customerScript2');
+            if (scriptBtn) scriptBtn.style.display = 'none';
+            if (scriptBox) scriptBox.style.display = 'none';
         }
 
         function updatePaidOptions2() {
@@ -969,27 +980,21 @@
 จ่ายปิด: ${formatNumber(totalToClose)} บาท
 รวมทั้งหมด: ${formatNumber(totalPaid)} บาท</div>
                 </div>
-
-                <button class="script-toggle-btn" onclick="toggleScript2()">💬 ข้อความอธิบายลูกค้า</button>
-                <div id="customerScript2" style="display:none;">
-                    <div class="customer-script-box" id="customerScriptText2"></div>
-                    <button class="copy-btn" onclick="copyScript2(this)">📋 คัดลอกข้อความ</button>
-                </div>
             `;
 
             // สร้างสคริปต์อธิบายลูกค้า
             const totalOrig = monthlyOrig * originalPlan;
-            let scriptText = `จากเดิมคุณทำสัญญาผ่อน ${originalPlan} เดือน เดือนละ ${formatNumber(monthlyOrig)} บาท (รวม ${formatNumber(totalOrig)})\n\n`;
+            let scriptText = `จากเดิมคุณลูกค้าทำสัญญาผ่อน ${originalPlan} เดือน เดือนละ ${formatNumber(monthlyOrig)} บาท (รวม ${formatNumber(totalOrig)})\n\n`;
 
             // ส่วนสถานะการจ่าย
             if (paidInstallments === 0 && lateDays > 0) {
-                scriptText += `แต่ตอนนี้คุณยังไม่ได้จ่ายงวดไหนเลย และเลยกำหนดมา ${lateDays} วัน\nทางร้านจึงไม่มีส่วนลดให้ครับ\n`;
+                scriptText += `แต่ตอนนี้คุณลูกค้ายังไม่ได้จ่ายงวดไหนเลย และเลยกำหนดมา ${lateDays} วัน\nทางร้านจึงไม่มีส่วนลดให้ครับ\n`;
             } else if (paidInstallments === 0 && lateDays === 0) {
-                scriptText += `ตอนนี้คุณยังไม่ได้จ่ายงวดไหนเลย ปิดวันนี้ทางร้านลดให้ 10% ครับ\n`;
+                scriptText += `ตอนนี้คุณลูกค้ายังไม่ได้จ่ายงวดไหนเลย ปิดวันนี้ทางร้านลดให้ 10% ครับ\n`;
             } else if (paidInstallments > 0 && lateDays > 0) {
-                scriptText += `ตอนนี้คุณจ่ายมาแล้ว ${paidInstallments} งวด แต่ค้างมา ${lateDays} วัน\nทางร้านจึงไม่มีส่วนลดให้ครับ\n`;
+                scriptText += `ตอนนี้คุณลูกค้าจ่ายมาแล้ว ${paidInstallments} งวด แต่ค้างมา ${lateDays} วัน\nทางร้านจึงไม่มีส่วนลดให้ครับ\n`;
             } else {
-                scriptText += `ตอนนี้คุณจ่ายมาแล้ว ${paidInstallments} งวด ปิดวันนี้ทางร้านลดให้ 10% ครับ\n`;
+                scriptText += `ตอนนี้คุณลูกค้าจ่ายมาแล้ว ${paidInstallments} งวด ปิดวันนี้ทางร้านลดให้ 10% ครับ\n`;
             }
 
             scriptText += `แต่จะมีการปรับสัญญาใหม่เป็นสัญญา ${usedPlan} เดือน ซึ่งถูกกว่าครับ\nตกเดือนละ ${formatNumber(monthlyUsed)} บาท\n\n`;
@@ -1010,6 +1015,8 @@
             document.getElementById('resultTitle').innerHTML = 'ผลการคำนวณ <span class="badge badge-orange">ปิดระหว่างผ่อน</span>';
             document.getElementById('resultContent').innerHTML = html;
             document.getElementById('customerScriptText2').textContent = scriptText;
+            document.getElementById('scriptToggleBtn2').style.display = 'block';
+            document.getElementById('customerScript2').style.display = 'none';
             document.getElementById('resultCard').classList.add('show');
         }
 
