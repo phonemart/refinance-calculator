@@ -237,6 +237,51 @@
             margin-top: 16px;
         }
 
+        .customer-script-box {
+            background: #66bb6a;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 16px;
+            white-space: pre-line;
+            line-height: 1.8;
+            font-size: 16px;
+            border-left: 6px solid #2e7d32;
+            position: relative;
+        }
+
+        .copy-btn {
+            background: #fff;
+            color: #2e7d32;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 14px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover { background: #e8f5e9; }
+        .copy-btn.copied { background: #2e7d32; color: white; }
+
+        .script-toggle-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #66bb6a, #43a047);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.2s;
+        }
+
+        .script-toggle-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,187,106,0.4); }
+
         .compare-title {
             font-weight: bold;
             color: #1565c0;
@@ -924,11 +969,65 @@
 จ่ายปิด: ${formatNumber(totalToClose)} บาท
 รวมทั้งหมด: ${formatNumber(totalPaid)} บาท</div>
                 </div>
+
+                <button class="script-toggle-btn" onclick="toggleScript2()">💬 ข้อความอธิบายลูกค้า</button>
+                <div id="customerScript2" style="display:none;">
+                    <div class="customer-script-box" id="customerScriptText2"></div>
+                    <button class="copy-btn" onclick="copyScript2(this)">📋 คัดลอกข้อความ</button>
+                </div>
             `;
+
+            // สร้างสคริปต์อธิบายลูกค้า
+            const totalOrig = monthlyOrig * originalPlan;
+            let scriptText = `จากเดิมคุณทำสัญญาผ่อน ${originalPlan} เดือน เดือนละ ${formatNumber(monthlyOrig)} บาท (รวม ${formatNumber(totalOrig)})\n\n`;
+
+            // ส่วนสถานะการจ่าย
+            if (paidInstallments === 0 && lateDays > 0) {
+                scriptText += `แต่ตอนนี้คุณยังไม่ได้จ่ายงวดไหนเลย และเลยกำหนดมา ${lateDays} วัน\nทางร้านจึงไม่มีส่วนลดให้ครับ\n`;
+            } else if (paidInstallments === 0 && lateDays === 0) {
+                scriptText += `ตอนนี้คุณยังไม่ได้จ่ายงวดไหนเลย ปิดวันนี้ทางร้านลดให้ 10% ครับ\n`;
+            } else if (paidInstallments > 0 && lateDays > 0) {
+                scriptText += `ตอนนี้คุณจ่ายมาแล้ว ${paidInstallments} งวด แต่ค้างมา ${lateDays} วัน\nทางร้านจึงไม่มีส่วนลดให้ครับ\n`;
+            } else {
+                scriptText += `ตอนนี้คุณจ่ายมาแล้ว ${paidInstallments} งวด ปิดวันนี้ทางร้านลดให้ 10% ครับ\n`;
+            }
+
+            scriptText += `แต่จะมีการปรับสัญญาใหม่เป็นสัญญา ${usedPlan} เดือน ซึ่งถูกกว่าครับ\nตกเดือนละ ${formatNumber(monthlyUsed)} บาท\n\n`;
+            scriptText += `เท่ากับยอดที่ลูกค้าต้องจ่ายปิดทั้งหมดคือ:\n`;
+
+            if (difference > 0) {
+                scriptText += `- ส่วนต่างที่ต้องเติม = ${formatNumber(difference)} บาท\n`;
+            }
+            scriptText += `- ค่างวดที่เหลือ ${monthsRemaining} งวด = ${formatNumber(monthlyUsed)} × ${monthsRemaining} = ${formatNumber(remainingTotal)} บาท\n`;
+            if (discount > 0) {
+                scriptText += `- ส่วนลด 10% = -${formatNumber(discount)} บาท\n`;
+            }
+            if (lateFee > 0) {
+                scriptText += `- ค่าดำเนินการจ่ายล่าช้า ${lateDays} วัน × 50 = ${formatNumber(lateFee)} บาท\n`;
+            }
+            scriptText += `\nรวมทั้งหมด ${formatNumber(totalToClose)} บาท ปิดจบสัญญาเลยครับ`;
 
             document.getElementById('resultTitle').innerHTML = 'ผลการคำนวณ <span class="badge badge-orange">ปิดระหว่างผ่อน</span>';
             document.getElementById('resultContent').innerHTML = html;
+            document.getElementById('customerScriptText2').textContent = scriptText;
             document.getElementById('resultCard').classList.add('show');
+        }
+
+        function toggleScript2() {
+            const box = document.getElementById('customerScript2');
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function copyScript2(btn) {
+            const text = document.getElementById('customerScriptText2').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = '✅ คัดลอกแล้ว!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = '📋 คัดลอกข้อความ';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
         }
 
         // ==================== Tab 3: เปลี่ยนสัญญา ====================
