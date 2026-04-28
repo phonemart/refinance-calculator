@@ -850,12 +850,14 @@
             const remainingTotal = monthlyUsed * monthsRemaining;
             // รวมส่วนต่าง + งวดที่เหลือ ก่อนลด
             const beforeDiscount = difference + remainingTotal;
-            // ไม่ลด เฉพาะกรณี: เหลือ 1 งวด และ สัญญาเดิม = สัญญาใหม่
-            const noDiscount = monthsRemaining === 1 && originalPlan === usedPlan;
-            const discount = noDiscount ? 0 : beforeDiscount * 0.10;
             // ค่าดำเนินการจ่ายล่าช้า (วันละ 50 บาท)
             const lateDays = parseInt(document.getElementById('lateDays2').value) || 0;
             const lateFee = lateDays * 50;
+            // ไม่ลด: (1) เหลือ 1 งวด + สัญญาเดิม = สัญญาใหม่ หรือ (2) ลูกค้าค้างชำระ (มีค่าล่าช้า)
+            const noDiscountLastInstallment = monthsRemaining === 1 && originalPlan === usedPlan;
+            const noDiscountLate = lateDays > 0;
+            const noDiscount = noDiscountLastInstallment || noDiscountLate;
+            const discount = noDiscount ? 0 : beforeDiscount * 0.10;
             const totalToClose = beforeDiscount - discount + lateFee;
 
             // รวมทั้งหมดที่ลูกค้าจ่าย
@@ -893,7 +895,7 @@
                 </div>
                 ${noDiscount ? `
                 <div class="result-item" style="background: #f5f5f5; margin: 0 -24px; padding: 14px 24px;">
-                    <span class="result-label">งวดสุดท้าย (สัญญาเดิม = สัญญาใหม่)</span>
+                    <span class="result-label">${noDiscountLate ? 'ลูกค้าค้างชำระ' : 'งวดสุดท้าย (สัญญาเดิม = สัญญาใหม่)'}</span>
                     <span class="result-value">ไม่มีส่วนลด</span>
                 </div>
                 ` : `
