@@ -609,12 +609,6 @@
                 </div>
 
                 <button class="btn" onclick="calculate1()" style="margin-top: 20px;">คำนวณ</button>
-
-                <button class="script-toggle-btn" id="scriptToggleBtn1" onclick="toggleScript(1)" style="display:none;">💬 ข้อความอธิบายลูกค้า</button>
-                <div id="customerScript1" style="display:none;">
-                    <div class="customer-script-box" id="customerScriptText1"></div>
-                    <button class="copy-btn" onclick="copyScript(1, this)">📋 คัดลอกข้อความ</button>
-                </div>
             </div>
 
             <!-- Tab 2: ปิดระหว่างผ่อน -->
@@ -663,12 +657,6 @@
                 </div>
 
                 <button class="btn" onclick="calculate2()" style="margin-top: 20px;">คำนวณ</button>
-
-                <button class="script-toggle-btn" id="scriptToggleBtn2" onclick="toggleScript(2)" style="display:none;">💬 ข้อความอธิบายลูกค้า</button>
-                <div id="customerScript2" style="display:none;">
-                    <div class="customer-script-box" id="customerScriptText2"></div>
-                    <button class="copy-btn" onclick="copyScript(2, this)">📋 คัดลอกข้อความ</button>
-                </div>
             </div>
 
             <!-- Tab 3: เปลี่ยนสัญญา -->
@@ -712,12 +700,6 @@
                 </div>
 
                 <button class="btn" onclick="calculate3()" style="margin-top: 20px;">คำนวณ</button>
-
-                <button class="script-toggle-btn" id="scriptToggleBtn3" onclick="toggleScript(3)" style="display:none;">💬 ข้อความอธิบายลูกค้า</button>
-                <div id="customerScript3" style="display:none;">
-                    <div class="customer-script-box" id="customerScriptText3"></div>
-                    <button class="copy-btn" onclick="copyScript(3, this)">📋 คัดลอกข้อความ</button>
-                </div>
             </div>
         </div>
 
@@ -725,6 +707,12 @@
         <div class="card result" id="resultCard">
             <div class="card-title" id="resultTitle">ผลการคำนวณ</div>
             <div id="resultContent"></div>
+
+            <button class="script-toggle-btn" id="scriptToggleBtn" onclick="toggleScript()" style="display:none;">💬 ข้อความอธิบายลูกค้า</button>
+            <div id="customerScript" style="display:none;">
+                <div class="customer-script-box" id="customerScriptText"></div>
+                <button class="copy-btn" onclick="copyScript(this)">📋 คัดลอกข้อความ</button>
+            </div>
         </div>
 
         <!-- Rate Table -->
@@ -786,13 +774,11 @@
 
             // Hide result
             document.getElementById('resultCard').classList.remove('show');
-            // Hide customer script buttons/boxes for all tabs
-            for (let i = 1; i <= 3; i++) {
-                const btn = document.getElementById('scriptToggleBtn' + i);
-                const box = document.getElementById('customerScript' + i);
-                if (btn) btn.style.display = 'none';
-                if (box) box.style.display = 'none';
-            }
+            // Hide customer script
+            const btn = document.getElementById('scriptToggleBtn');
+            const box = document.getElementById('customerScript');
+            if (btn) btn.style.display = 'none';
+            if (box) box.style.display = 'none';
         }
 
         function updatePaidOptions2() {
@@ -1047,13 +1033,13 @@
             document.getElementById('resultCard').classList.add('show');
         }
 
-        function toggleScript(tabNum) {
-            const box = document.getElementById('customerScript' + tabNum);
+        function toggleScript() {
+            const box = document.getElementById('customerScript');
             box.style.display = box.style.display === 'none' ? 'block' : 'none';
         }
 
-        function copyScript(tabNum, btn) {
-            const text = document.getElementById('customerScriptText' + tabNum).textContent;
+        function copyScript(btn) {
+            const text = document.getElementById('customerScriptText').textContent;
             navigator.clipboard.writeText(text).then(() => {
                 btn.textContent = '✅ คัดลอกแล้ว!';
                 btn.classList.add('copied');
@@ -1064,10 +1050,10 @@
             });
         }
 
-        function showCustomerScript(tabNum, scriptText) {
-            document.getElementById('customerScriptText' + tabNum).textContent = scriptText;
-            document.getElementById('scriptToggleBtn' + tabNum).style.display = 'block';
-            document.getElementById('customerScript' + tabNum).style.display = 'none';
+        function showCustomerScript(_tabNum, scriptText) {
+            document.getElementById('customerScriptText').textContent = scriptText;
+            document.getElementById('scriptToggleBtn').style.display = 'block';
+            document.getElementById('customerScript').style.display = 'none';
         }
 
         // ==================== Tab 3: เปลี่ยนสัญญา ====================
