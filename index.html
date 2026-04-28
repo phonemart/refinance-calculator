@@ -580,6 +580,7 @@
                 <div class="form-group">
                     <label>จ่ายไปแล้วกี่งวด</label>
                     <select id="paidInstallments2">
+                        <option value="0">ยังไม่ได้จ่าย</option>
                         <option value="1">1 งวด</option>
                         <option value="2">2 งวด</option>
                         <option value="3">3 งวด</option>
@@ -589,6 +590,11 @@
                         <option value="7">7 งวด</option>
                         <option value="8">8 งวด</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label>ค่าดำเนินการจ่ายล่าช้า (จำนวนวัน × 50 บาท)</label>
+                    <input type="number" id="lateDays2" placeholder="เช่น 5" value="0" min="0">
                 </div>
 
                 <div class="note-box">
@@ -715,7 +721,7 @@
         function updatePaidOptions2() {
             const plan = parseInt(document.getElementById('originalPlan2').value);
             const select = document.getElementById('paidInstallments2');
-            select.innerHTML = '';
+            select.innerHTML = '<option value="0">ยังไม่ได้จ่าย</option>';
             for (let i = 1; i < plan; i++) {
                 select.innerHTML += `<option value="${i}">${i} งวด</option>`;
             }
@@ -847,7 +853,10 @@
             // ไม่ลด เฉพาะกรณี: เหลือ 1 งวด และ สัญญาเดิม = สัญญาใหม่
             const noDiscount = monthsRemaining === 1 && originalPlan === usedPlan;
             const discount = noDiscount ? 0 : beforeDiscount * 0.10;
-            const totalToClose = beforeDiscount - discount;
+            // ค่าดำเนินการจ่ายล่าช้า (วันละ 50 บาท)
+            const lateDays = parseInt(document.getElementById('lateDays2').value) || 0;
+            const lateFee = lateDays * 50;
+            const totalToClose = beforeDiscount - discount + lateFee;
 
             // รวมทั้งหมดที่ลูกค้าจ่าย
             const totalPaid = alreadyPaidOrig + totalToClose;
@@ -893,6 +902,12 @@
                     <span class="result-value">-${formatNumber(discount)} บาท</span>
                 </div>
                 `}
+                ${lateFee > 0 ? `
+                <div class="result-item" style="background: #ffebee; margin: 0 -24px; padding: 14px 24px;">
+                    <span class="result-label">ค่าดำเนินการจ่ายล่าช้า</span>
+                    <span class="result-value" style="color: #c62828;">${lateDays} วัน × 50 = +${formatNumber(lateFee)} บาท</span>
+                </div>
+                ` : ''}
                 <div class="result-item highlight">
                     <span class="result-label">ลูกค้าจ่ายปิดสัญญา</span>
                     <span class="result-value">${formatNumber(totalToClose)} บาท</span>
