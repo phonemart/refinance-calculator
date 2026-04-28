@@ -1024,7 +1024,12 @@
                 scriptText += `ตอนนี้คุณลูกค้าจ่ายมาแล้ว ${paidInstallments} งวด ปิดวันนี้ทางร้านลดให้ 10% ครับ\n`;
             }
 
-            scriptText += `แต่จะมีการปรับสัญญาใหม่เป็นสัญญา ${usedPlan} เดือน ซึ่งถูกกว่าครับ\nตกเดือนละ ${formatNumber(monthlyUsed)} บาท\n\n`;
+            // แสดง "ปรับสัญญาใหม่" เฉพาะเมื่อสัญญาใหม่ต่างจากเดิม
+            if (usedPlan !== originalPlan) {
+                scriptText += `แต่จะมีการปรับสัญญาใหม่เป็นสัญญา ${usedPlan} เดือน ซึ่งถูกกว่าครับ\nตกเดือนละ ${formatNumber(monthlyUsed)} บาท\n\n`;
+            } else {
+                scriptText += `\n`;
+            }
             scriptText += `เท่ากับยอดที่ลูกค้าต้องจ่ายปิดทั้งหมดคือ:\n`;
 
             if (difference > 0) {
